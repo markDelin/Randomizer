@@ -1,194 +1,225 @@
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-
-// import org.junit.jupiter.api.Test;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.datatransfer.StringSelection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
+import java.util.Random;
 
-public class Main extends JFrame {
-    private JTextArea namesInput;
-    private JSpinner groupSizeSpinner;
-    private JList<String> resultList;
-    private DefaultListModel<String> listModel;
-    private JButton randomizeButton;
-    private JButton copyButton;
-    private JCheckBox darkModeCheckbox;
-    private JComboBox<String> presetNamesCombo;
+public class randomizer {
+    private static int groupSize = 2; // default people per group
+    private static int numberOfGroups = 0; // 0 means not set
+    private static boolean useGroupSize = true; // true=group size, false=number of groups
 
-    private final String[][] PRESET_NAMES = {
-        {"Student 1", "Student 2", "Student 3", "Student 4", "Student 5", "Student 6", "Student 7", "Student 8", "Student 9", "Student 10"},
-        {"Leb", "Khim", "Jasper", "Adrian", "Carlos", "Cyrus", "Miguel", "Rowena", "Rico", "Raffy"}
-    };
-
-    private final String[] PRESET_CATEGORIES = {
-        "Sample Student Numbers",
-        "Sample Names"
-    };
-
-
-    public Main() {
-        initComponents();
-        setModernLook();
-    }
-
-    private void initComponents() {
-        // Main window setup
-        setTitle("Modern Group Randomizer");
-        setSize(600, 500);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-
-        // Main panel with modern border
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // Input area
-        namesInput = new JTextArea();
-        namesInput.setLineWrap(true);
-        namesInput.setBorder(BorderFactory.createTitledBorder("Enter Names (One per line)"));
-
-        // Control panel
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        controlPanel.add(new JLabel("Group Size:"));
-        groupSizeSpinner = new JSpinner(new SpinnerNumberModel(2, 2, 10, 1));
-        controlPanel.add(groupSizeSpinner);
-
-        randomizeButton = new JButton("Randomize Groups");
-        randomizeButton.addActionListener(e -> randomizeGroups());
-        controlPanel.add(randomizeButton);
-
-        darkModeCheckbox = new JCheckBox("Dark Mode");
-        darkModeCheckbox.addActionListener(e -> toggleDarkMode());
-        controlPanel.add(darkModeCheckbox);
-
-        // Preset Names Dropdown
-        presetNamesCombo = new JComboBox<>(PRESET_CATEGORIES);
-        presetNamesCombo.addActionListener(e -> loadPresetNames());
-        controlPanel.add(presetNamesCombo);
-
-        // Result area
-        listModel = new DefaultListModel<>();
-        resultList = new JList<>(listModel);
-        resultList.setFont(new Font("Arial", Font.PLAIN, 14));
-        resultList.setBorder(BorderFactory.createTitledBorder("Randomized Groups"));
-
-        // Copy button
-        copyButton = new JButton("Copy Results");
-        copyButton.addActionListener(e -> copyToClipboard());
-
-        // Layout
-        mainPanel.add(new JScrollPane(namesInput), BorderLayout.NORTH);
-        mainPanel.add(controlPanel, BorderLayout.CENTER);
-        mainPanel.add(new JScrollPane(resultList), BorderLayout.CENTER);
-        controlPanel.setPreferredSize(new Dimension(600, 40));
-        mainPanel.add(copyButton, BorderLayout.PAGE_END);
-
-        add(mainPanel);
-    }
-
-    private void loadPresetNames() {
-        int selectedIndex = presetNamesCombo.getSelectedIndex();
-        if (selectedIndex >= 0 && selectedIndex < PRESET_NAMES.length) {
-            StringBuilder names = new StringBuilder();
-            for (String name : PRESET_NAMES[selectedIndex]) {
-                names.append(name).append("\n");
+    public static void main(String[] args) throws InterruptedException {
+        // Initialize with some default names
+        ArrayList<String> names = new ArrayList<>();
+        names.add("Rowena Remolin");
+        names.add("Julyannah Cazandra Alcoran");
+        names.add("Reymark Delin");
+        names.add("Jasper James Delgado");
+        names.add("Khim Joy Calambas");
+        names.add("Adrian Gapi");
+        
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+        
+        System.out.println("╔════════════════════════════════╗");
+        System.out.println("║      GROUP RANDOMIZER SYSTEM   ║");
+        System.out.println("╚════════════════════════════════╝");
+        
+        while (true) {
+            System.out.println("\nCurrent names (" + names.size() + "):");
+            displayNames(names);
+            System.out.println("\nCurrent grouping method: " + 
+                (useGroupSize ? 
+                    (groupSize + " people per group") : 
+                    (numberOfGroups + " groups")));
+            System.out.println("\nMenu:");
+            System.out.println("1. Add more names");
+            System.out.println("2. Remove names");
+            System.out.println("3. Change group settings");
+            System.out.println("4. Randomize groups (with animation)");
+            System.out.println("5. Exit");
+            System.out.print("\nChoose an option: ");
+            
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a number (1-5)");
+                continue;
             }
-            namesInput.setText(names.toString());
-        }
-    }
-
-    private void setModernLook() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            SwingUtilities.updateComponentTreeUI(this);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void toggleDarkMode() {
-        try {
-            if (darkModeCheckbox.isSelected()) {
-                UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf");
-            } else {
-                UIManager.setLookAndFeel("com.formdev.flatlaf.FlatLightLaf");
+            
+            switch (choice) {
+                case 1:
+                    System.out.print("\nEnter names to add (separate by commas): ");
+                    String newNames = scanner.nextLine();
+                    String[] namesToAdd = newNames.split(",");
+                    for (String name : namesToAdd) {
+                        if (!name.trim().isEmpty()) {
+                            names.add(name.trim());
+                        }
+                    }
+                    System.out.println("\n" + namesToAdd.length + " names added successfully!");
+                    break;
+                    
+                case 2:
+                    System.out.println("\nCurrent names:");
+                    displayNames(names);
+                    System.out.print("\nEnter names to remove (separate by commas): ");
+                    String namesToRemove = scanner.nextLine();
+                    String[] removeNames = namesToRemove.split(",");
+                    int removedCount = 0;
+                    for (String name : removeNames) {
+                        if (names.remove(name.trim())) {
+                            removedCount++;
+                        }
+                    }
+                    System.out.println("\n" + removedCount + " names removed successfully!");
+                    break;
+                    
+                case 3:
+                    System.out.println("\nCurrent grouping method: " + 
+                        (useGroupSize ? 
+                            (groupSize + " people per group") : 
+                            (numberOfGroups + " groups")));
+                    System.out.println("\nGrouping options:");
+                    System.out.println("1. Set number of people per group");
+                    System.out.println("2. Set number of groups");
+                    System.out.print("Choose grouping method (1-2): ");
+                    
+                    int groupingChoice;
+                    try {
+                        groupingChoice = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid choice. Keeping current settings.");
+                        break;
+                    }
+                    
+                    if (groupingChoice == 1) {
+                        System.out.print("\nEnter number of people per group (current: " + groupSize + "): ");
+                        try {
+                            int newSize = Integer.parseInt(scanner.nextLine());
+                            if (newSize < 1) {
+                                System.out.println("Group size must be at least 1");
+                            } else if (newSize > names.size()) {
+                                System.out.println("Group size cannot be larger than number of names (" + names.size() + ")");
+                            } else {
+                                groupSize = newSize;
+                                useGroupSize = true;
+                                System.out.println("Group size changed to " + groupSize + " people per group");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number. Using current size.");
+                        }
+                    } else if (groupingChoice == 2) {
+                        System.out.print("\nEnter number of groups (current: " + (numberOfGroups == 0 ? "not set" : numberOfGroups) + "): ");
+                        try {
+                            int newGroups = Integer.parseInt(scanner.nextLine());
+                            if (newGroups < 1) {
+                                System.out.println("Number of groups must be at least 1");
+                            } else if (newGroups > names.size()) {
+                                System.out.println("Number of groups cannot be larger than number of names (" + names.size() + ")");
+                            } else {
+                                numberOfGroups = newGroups;
+                                useGroupSize = false;
+                                System.out.println("Number of groups changed to " + numberOfGroups);
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid number. Using current setting.");
+                        }
+                    } else {
+                        System.out.println("Invalid choice. Keeping current settings.");
+                    }
+                    break;
+                    
+                case 4:
+                    if (names.size() < 2) {
+                        System.out.println("\nNeed at least 2 names to form groups");
+                        break;
+                    }
+                    
+                    // Calculate groups based on current settings
+                    int actualGroupSize;
+                    if (useGroupSize) {
+                        actualGroupSize = groupSize;
+                    } else {
+                        // Calculate group size based on number of groups
+                        actualGroupSize = (int) Math.ceil((double) names.size() / numberOfGroups);
+                    }
+                    
+                    // Shuffle animation
+                    System.out.println("\nRandomizing groups...");
+                    animateShuffling(names, random);
+                    
+                    // Create groups
+                    System.out.println("\n╔════════════════════════════════╗");
+                    System.out.println("║        RANDOMIZED GROUPS       ║");
+                    System.out.println("╚════════════════════════════════╝");
+                    
+                    List<List<String>> groups = new ArrayList<>();
+                    Collections.shuffle(names, random);
+                    
+                    if (useGroupSize) {
+                        // Group by size
+                        for (int i = 0; i < names.size(); i += actualGroupSize) {
+                            int end = Math.min(i + actualGroupSize, names.size());
+                            groups.add(names.subList(i, end));
+                        }
+                    } else {
+                        // Group by number of groups
+                        int namesPerGroup = names.size() / numberOfGroups;
+                        int remainder = names.size() % numberOfGroups;
+                        int index = 0;
+                        
+                        for (int i = 0; i < numberOfGroups; i++) {
+                            int size = namesPerGroup + (i < remainder ? 1 : 0);
+                            groups.add(names.subList(index, index + size));
+                            index += size;
+                        }
+                    }
+                    
+                    // Display groups
+                    for (int i = 0; i < groups.size(); i++) {
+                        System.out.println("\nGroup " + (i + 1) + ":");
+                        for (String member : groups.get(i)) {
+                            System.out.println("  • " + member);
+                        }
+                    }
+                    
+                    System.out.println("\nPress enter to continue...");
+                    scanner.nextLine();
+                    break;
+                    
+                case 5:
+                    System.out.println("\nSalamat! Exiting program...");
+                    scanner.close();
+                    return;
+                    
+                default:
+                    System.out.println("\nInvalid choice. Please enter 1-5");
             }
-            SwingUtilities.updateComponentTreeUI(this);
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
-
-    private void randomizeGroups() {
-        String inputText = namesInput.getText().trim();
-        if (inputText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter some names first!", "Error", 
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String[] names = inputText.split("\\r?\\n");
-        List<String> nameList = new ArrayList<>();
-        for (String name : names) {
-            String trimmedName = name.trim();
-            if (!trimmedName.isEmpty()) {
-                nameList.add(trimmedName);
-            }
-        }
-
-        if (nameList.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter valid names!", "Error", 
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        int groupSize = (int) groupSizeSpinner.getValue();
-        if (groupSize > nameList.size()) {
-            JOptionPane.showMessageDialog(this, 
-                "Group size cannot be larger than the number of names!", 
-                "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        Collections.shuffle(nameList);
-        StringBuilder result = new StringBuilder();
-
-        for (int i = 0; i < nameList.size(); i += groupSize) {
-            result.append("Group ").append((i / groupSize) + 1).append(":\n");
-            for (int j = i; j < Math.min(i + groupSize, nameList.size()); j++) {
-                result.append("• ").append(nameList.get(j)).append("\n");
-            }
-            result.append("\n");
-        }
-
-        listModel.clear();
-        String[] groups = result.toString().split("\n");
-        for (String group : groups) {
-            if (!group.trim().isEmpty()) {
-                listModel.addElement(group);
-            }
+    
+    private static void displayNames(List<String> names) {
+        for (int i = 0; i < names.size(); i++) {
+            System.out.println((i + 1) + ". " + names.get(i));
         }
     }
-
-    private void copyToClipboard() {
-        StringBuilder text = new StringBuilder();
-        for (int i = 0; i < listModel.getSize(); i++) {
-            text.append(listModel.getElementAt(i)).append("\n");
+    
+    private static void animateShuffling(ArrayList<String> names, Random random) throws InterruptedException {
+        int animationDuration = 3000; // 3 seconds
+        long startTime = System.currentTimeMillis();
+        
+        String[] spinner = new String[] { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" };
+        int spinnerIndex = 0;
+        
+        while (System.currentTimeMillis() - startTime < animationDuration) {
+            System.out.print("\r" + spinner[spinnerIndex] + " Shuffling names... ");
+            spinnerIndex = (spinnerIndex + 1) % spinner.length;
+            Thread.sleep(150);
         }
-        StringSelection selection = new StringSelection(text.toString());
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
-        JOptionPane.showMessageDialog(this, "Results copied to clipboard!", "Success", 
-            JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Main app = new Main();
-            app.setVisible(true);
-        });
+        
+        System.out.print("\r" + "✓ Done shuffling!          \n");
     }
 }
