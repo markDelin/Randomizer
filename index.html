@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Randomizer System</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --text-color: #333;
+            --border-color: #ddd;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px var(--shadow-color);
+            padding: 25px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--dark-color);
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .main-panel {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .panel {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .names-panel {
+            flex: 2;
+        }
+        
+        .settings-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            font-weight: 500;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 8px;
+        }
+        
+        .names-list {
+            height: 350px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            padding: 0;
+            border-radius: 5px;
+            background-color: var(--light-color);
+        }
+        
+        .name-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .name-item:last-child {
+            border-bottom: none;
+        }
+        
+        .name-item:hover {
+            background-color: #e3f2fd;
+        }
+        
+        .name-item.selected {
+            background-color: #bbdefb;
+            font-weight: 500;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex: 1;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-secondary {
+            background-color: #7f8c8d;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #6c7a7d;
+        }
+        
+        .status-bar {
+            padding: 12px;
+            background-color: var(--light-color);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        
+        .group-method {
+            margin-bottom: 20px;
+            font-weight: 500;
+            color: var(--dark-color);
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .radio-group {
+            margin-bottom: 20px;
+        }
+        
+        .radio-option {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            margin-right: 10px;
+        }
+        
+        .size-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .size-input label {
+            font-weight: 500;
+        }
+        
+        .size-input input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 25px;
+            border: none;
+            width: 85%;
+            max-width: 700px;
+            border-radius: 8px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: modalopen 0.3s;
+        }
+        
+        @keyframes modalopen {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .close:hover {
+            color: var(--dark-color);
+        }
+        
+        .group {
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            background-color: white;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+        
+        .group-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 8px;
+        }
+        
+        .group-member {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .group-member:last-child {
+            border-bottom: none;
+        }
+        
+        .group-member::before {
+            content: '•';
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-panel {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .button-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GROUP RANDOMIZER SYSTEM</h1>
+        
+        <div class="main-panel">
+            <div class="panel names-panel">
+                <h3 class="panel-title">Names List (<span id="names-count">0</span>)</h3>
+                <div class="names-list" id="names-list"></div>
+                <div class="button-row">
+                    <button id="add-btn" class="btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                        </svg>
+                        Add Names
+                    </button>
+                    <button id="remove-btn" class="btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                            <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                        </svg>
+                        Remove Selected
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel settings-panel">
+                <h3 class="panel-title">Group Settings</h3>
+                <div class="group-method" id="group-method-label">Grouping method: 2 people per group</div>
+                
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="group-size-radio" name="group-method" checked>
+                        <label for="group-size-radio">People per group</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="num-groups-radio" name="group-method">
+                        <label for="num-groups-radio">Number of groups</label>
+                    </div>
+                </div>
+                
+                <div class="size-input">
+                    <label for="size-input">Value:</label>
+                    <input type="number" id="size-input" min="1" value="2">
+                    <button id="set-size-btn" class="btn-secondary">Set</button>
+                </div>
+                
+                <button id="randomize-btn" class="randomize-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    Randomize Groups
+                </button>
+            </div>
+        </div>
+        
+        <div class="status-bar" id="status-bar">Ready</div>
+    </div>
+    
+    <!-- Modal for showing groups -->
+    <div id="groups-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="margin-top: 0;">Randomized Groups</h2>
+            <div id="groups-container"></div>
+            <div class="export-options">
+                <button id="copy-groups-btn" class="btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+                    Copy to Clipboard
+                </button>
+                <button id="export-txt-btn" class="btn-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Export as TXT
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button id="close-modal-btn" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2025 <strong>gmzn_prg</strong> | All Rights Reserved
+    </footer>
+    
+    <script>
+        // List to store all names
+        const names = [
+            "Adrian Gapi",
+            "Angela Pauste",
+            "Antonia Ascaño",
+            "Airah Calam",
+            "Cyrus Annonuevo",
+            "Damarish Lazo",
+            "Danica Villanueva",
+            "Irish Sallador",
+            "Jaibel Rentillo",
+            "Jade Mark Eustaquio",
+            "Jasper James Delgado",
+            "Jensai Padilla",
+            "Jasmine Cezar",
+            "Jessa Gado",
+            "Julyannah Cazandra Alcoran",
+            "Khim Joy Calambas",
+            "Miguel Baustista",
+            "Raffy Gamier",
+            "Reymark Delin",
+            "Rico Imnay",
+            "Robert Lebron Perucho",
+            "Rowena Remolin",
+            "Ruth Villegas",
+            "Shane De Jesus",
+            "Ericson Ragsac"
+        ].sort();
+        
+        // Default group size (people per group)
+        let groupSize = 2;
+        // Number of groups (0 means not set)
+        let numberOfGroups = 0;
+        // Flag to determine grouping method (true=group size, false=number of groups)
+        let useGroupSize = true;
+        
+        // DOM elements
+        const namesList = document.getElementById('names-list');
+        const namesCount = document.getElementById('names-count');
+        const statusBar = document.getElementById('status-bar');
+        const groupMethodLabel = document.getElementById('group-method-label');
+        const groupSizeRadio = document.getElementById('group-size-radio');
+        const numGroupsRadio = document.getElementById('num-groups-radio');
+        const sizeInput = document.getElementById('size-input');
+        const addBtn = document.getElementById('add-btn');
+        const removeBtn = document.getElementById('remove-btn');
+        const setSizeBtn = document.getElementById('set-size-btn');
+        const randomizeBtn = document.getElementById('randomize-btn');
+        const groupsModal = document.getElementById('groups-modal');
+        const groupsContainer = document.getElementById('groups-container');
+        const closeModal = document.getElementsByClassName('close')[0];
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const copyGroupsBtn = document.getElementById('copy-groups-btn');
+        const exportTxtBtn = document.getElementById('export-txt-btn');
+        
+        // Initialize the application
+        function init() {
+            updateNamesList();
+            updateGroupingMethodLabel();
+            
+            // Event listeners
+            addBtn.addEventListener('click', addNames);
+            removeBtn.addEventListener('click', removeSelectedNames);
+            setSizeBtn.addEventListener('click', setGroupSize);
+            randomizeBtn.addEventListener('click', randomizeGroups);
+            closeModal.addEventListener('click', () => groupsModal.style.display = 'none');
+            closeModalBtn.addEventListener('click', () => groupsModal.style.display = 'none');
+            copyGroupsBtn.addEventListener('click', copyGroupsToClipboard);
+            exportTxtBtn.addEventListener('click', exportGroupsAsTxt);
+            
+            groupSizeRadio.addEventListener('change', () => {
+                useGroupSize = true;
+                sizeInput.value = groupSize;
+                updateGroupingMethodLabel();
+            });
+            
+            numGroupsRadio.addEventListener('change', () => {
+                useGroupSize = false;
+                sizeInput.value = numberOfGroups > 0 ? numberOfGroups : '';
+                updateGroupingMethodLabel();
+            });
+            
+            // Close modal when clicking outside of it
+            window.addEventListener('click', (event) => {
+                if (event.target === groupsModal) {
+                    groupsModal.style.display = 'none';
+                }
+            });
+        }
+        
+        // Update the names list display
+        function updateNamesList() {
+            namesList.innerHTML = '';
+            names.sort();
+            
+            names.forEach((name, index) => {
+                const nameElement = document.createElement('div');
+                nameElement.className = 'name-item';
+                nameElement.textContent = name;
+                nameElement.dataset.index = index;
+                nameElement.addEventListener('click', toggleSelection);
+                namesList.appendChild(nameElement);
+            });
+            
+            namesCount.textContent = names.length;
+        }
+        
+        // Toggle selection of a name
+        function toggleSelection(event) {
+            event.currentTarget.classList.toggle('selected');
+        }
+        
+        // Update the grouping method label
+        function updateGroupingMethodLabel() {
+            groupMethodLabel.textContent = `Grouping method: ${
+                useGroupSize ? 
+                `${groupSize} people per group` : 
+                `${numberOfGroups > 0 ? numberOfGroups : '?'} groups`
+            }`;
+        }
+        
+        // Add names to the list
+        function addNames() {
+            const input = prompt('Enter names to add (separated by commas):');
+            if (input && input.trim()) {
+                const namesToAdd = input.split(',').map(name => name.trim()).filter(name => name);
+                names.push(...namesToAdd);
+                updateNamesList();
+                statusBar.textContent = `${namesToAdd.length} names added successfully!`;
+                setTimeout(() => {
+                    statusBar.textContent = 'Ready';
+                }, 3000);
+            }
+        }
+        
+        // Remove selected names from the list
+        function removeSelectedNames() {
+            const selectedItems = document.querySelectorAll('.name-item.selected');
+            if (selectedItems.length === 0) {
+                statusBar.textContent = 'No names selected to remove';
+                setTimeout(() => {
+                    statusBar.textContent = 'Ready';
+                }, 2000);
+                return;
+            }
+            
+            // Remove from highest index to lowest to avoid shifting issues
+            const indicesToRemove = Array.from(selectedItems)
+                .map(item => parseInt(item.dataset.index))
+                .sort((a, b) => b - a);
+            
+            indicesToRemove.forEach(index => {
+                names.splice(index, 1);
+            });
+            
+            updateNamesList();
+            statusBar.textContent = `${selectedItems.length} names removed successfully!`;
+            setTimeout(() => {
+                statusBar.textContent = 'Ready';
+            }, 3000);
+        }
+        
+        // Set group size or number of groups
+        function setGroupSize() {
+            const value = parseInt(sizeInput.value);
+            if (isNaN(value) || value < 1) {
+                alert('Value must be at least 1');
+                return;
+            }
+            
+            if (useGroupSize) {
+                if (value > names.length) {
+                    alert(`Group size cannot be larger than number of names (${names.length})`);
+                    return;
+                }
+                groupSize = value;
+            } else {
+                if (value > names.length) {
+                    alert(`Number of groups cannot be larger than number of names (${names.length})`);
+                    return;
+                }
+                numberOfGroups = value;
+            }
+            
+            updateGroupingMethodLabel();
+            statusBar.textContent = `Group setting updated to ${value}`;
+            setTimeout(() => {
+                statusBar.textContent = 'Ready';
+            }, 2000);
+        }
+        
+        // Randomize names into groups
+        function randomizeGroups() {
+            if (names.length < 2) {
+                statusBar.textContent = 'Need at least 2 names to form groups';
+                setTimeout(() => {
+                    statusBar.textContent = 'Ready';
+                }, 2000);
+                return;
+            }
+            
+            // Calculate groups based on current settings
+            let actualGroupSize;
+            if (useGroupSize) {
+                actualGroupSize = groupSize;
+            } else {
+                if (numberOfGroups === 0) {
+                    statusBar.textContent = 'Please set number of groups first';
+                    setTimeout(() => {
+                        statusBar.textContent = 'Ready';
+                    }, 2000);
+                    return;
+                }
+                actualGroupSize = Math.ceil(names.length / numberOfGroups);
+            }
+            
+            // Shuffle the names (Fisher-Yates algorithm)
+            const shuffledNames = [...names];
+            for (let i = shuffledNames.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledNames[i], shuffledNames[j]] = [shuffledNames[j], shuffledNames[i]];
+            }
+            
+            // Create groups
+            const groups = [];
+            
+            if (useGroupSize) {
+                // Group by size
+                for (let i = 0; i < shuffledNames.length; i += actualGroupSize) {
+                    const end = Math.min(i + actualGroupSize, shuffledNames.length);
+                    groups.push(shuffledNames.slice(i, end));
+                }
+            } else {
+                // Group by number of groups
+                const namesPerGroup = Math.floor(shuffledNames.length / numberOfGroups);
+                let remainder = shuffledNames.length % numberOfGroups;
+                let index = 0;
+                
+                for (let i = 0; i < numberOfGroups; i++) {
+                    const size = namesPerGroup + (i < remainder ? 1 : 0);
+                    groups.push(shuffledNames.slice(index, index + size));
+                    index += size;
+                }
+            }
+            
+            // Display groups
+            showGroups(groups);
+            statusBar.textContent = 'Groups randomized successfully!';
+            setTimeout(() => {
+                statusBar.textContent = 'Ready';
+            }, 3000);
+        }
+        
+        // Display the groups in a modal
+        function showGroups(groups) {
+            groupsContainer.innerHTML = '';
+            
+            groups.forEach((group, index) => {
+                const groupElement = document.createElement('div');
+                groupElement.className = 'group';
+                
+                const titleElement = document.createElement('div');
+                titleElement.className = 'group-title';
+                titleElement.innerHTML = `<span>Group ${index + 1}</span><span>${group.length} member${group.length !== 1 ? 's' : ''}</span>`;
+                groupElement.appendChild(titleElement);
+                
+                group.forEach(member => {
+                    const memberElement = document.createElement('div');
+                    memberElement.className = 'group-member';
+                    memberElement.textContent = member;
+                    groupElement.appendChild(memberElement);
+                });
+                
+                groupsContainer.appendChild(groupElement);
+            });
+            
+            groupsModal.style.display = 'block';
+        }
+        
+        // Copy groups to clipboard
+        function copyGroupsToClipboard() {
+            const groups = Array.from(document.querySelectorAll('.group'));
+            let textToCopy = '';
+            
+            groups.forEach(group => {
+                const title = group.querySelector('.group-title span:first-child').textContent;
+                const members = Array.from(group.querySelectorAll('.group-member'))
+                    .map(member => member.textContent)
+                    .join('\n  ');
+                
+                textToCopy += `${title}:\n  ${members}\n\n`;
+            });
+            
+            navigator.clipboard.writeText(textToCopy.trim())
+                .then(() => {
+                    const originalText = copyGroupsBtn.innerHTML;
+                    copyGroupsBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/></svg> Copied!';
+                    
+                    setTimeout(() => {
+                        copyGroupsBtn.innerHTML = originalText;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy groups to clipboard');
+                });
+        }
+        
+        // Export groups as TXT file
+        function exportGroupsAsTxt() {
+            const groups = Array.from(document.querySelectorAll('.group'));
+            let textContent = 'Randomized Groups\n\n';
+            
+            groups.forEach(group => {
+                const title = group.querySelector('.group-title span:first-child').textContent;
+                const members = Array.from(group.querySelectorAll('.group-member'))
+                    .map(member => member.textContent)
+                    .join('\n  ');
+                
+                textContent += `${title}:\n  ${members}\n\n`;
+            });
+            
+            const blob = new Blob([textContent.trim()], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `groups_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Initialize the app when the page loads
+        window.onload = init;
+    </script>
+</body>
+</html>
